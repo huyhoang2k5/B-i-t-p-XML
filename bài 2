@@ -1,0 +1,93 @@
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.util.ArrayList;
+import java.util.List;
+
+public class StudentListToXML {
+    public static void main(String[] args) {
+        // Tạo danh sách sinh viên
+        List<Student> students = new ArrayList<>();
+        students.add(new Student("Alice", 20, 3.8));
+        students.add(new Student("Bob", 21, 3.5));
+        students.add(new Student("Carol", 19, 3.9));
+
+        // Xuất danh sách sinh viên thành tệp XML
+        exportStudentListToXML(students, "students.xml");
+    }
+
+    public static void exportStudentListToXML(List<Student> students, String fileName) {
+        try {
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            // Tạo tệp XML
+            Document doc = docBuilder.newDocument();
+            Element rootElement = doc.createElement("Students");
+            doc.appendChild(rootElement);
+
+            // Thêm thông tin sinh viên vào tệp XML
+            for (Student student : students) {
+                Element studentElement = doc.createElement("Student");
+                rootElement.appendChild(studentElement);
+
+                Element nameElement = doc.createElement("Name");
+                nameElement.appendChild(doc.createTextNode(student.getName()));
+                studentElement.appendChild(nameElement);
+
+                Element ageElement = doc.createElement("Age");
+                ageElement.appendChild(doc.createTextNode(String.valueOf(student.getAge())));
+                studentElement.appendChild(ageElement);
+
+                Element gpaElement = doc.createElement("GPA");
+                gpaElement.appendChild(doc.createTextNode(String.valueOf(student.getGpa())));
+                studentElement.appendChild(gpaElement);
+            }
+
+            // Ghi tệp XML
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(fileName);
+            transformer.transform(source, result);
+
+            System.out.println("Đã xuất danh sách sinh viên vào tệp " + fileName);
+        } catch (ParserConfigurationException | TransformerException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class Student {
+    private String name;
+    private int age;
+    private double gpa;
+
+    public Student(String name, int age, double gpa) {
+        this.name = name;
+        this.age = age;
+        this.gpa = gpa;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public double getGpa() {
+        return gpa;
+    }
+}
